@@ -19,6 +19,7 @@ public class ExerciseService
       // .Include(exer => exer.SetRecords)
       //   .ThenInclude(sr => sr.Sets)
       .AsNoTracking()
+      .OrderBy(exercise => exercise.Name)
       .ToList();
   }
 
@@ -27,6 +28,13 @@ public class ExerciseService
     return _context.Exercises
       .Include(exer => exer.SetRecords)
         .ThenInclude(sr => sr.Sets)
+      .AsNoTracking()
+      .SingleOrDefault(p => p.Id == id);
+  }
+
+  public Exercise? GetByIdSimple(int id)
+  {
+    return _context.Exercises
       .AsNoTracking()
       .SingleOrDefault(p => p.Id == id);
   }

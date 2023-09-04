@@ -24,7 +24,7 @@ public class ExerciseController : ControllerBase
   [HttpGet("{id}")]
   public ActionResult<Exercise> GetById(int id)
   {
-    var Exercise = _service.GetById(id);
+    var Exercise = _service.GetByIdSimple(id);
 
     if (Exercise is not null)
     {

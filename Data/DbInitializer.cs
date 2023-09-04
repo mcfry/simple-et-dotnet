@@ -8,6 +8,10 @@ namespace ExerciseTimer.Data
     {
       if (context.Exercises.Any())
       {
+        // Delete and reseed
+        // context.Exercises.RemoveRange(context.Exercises);
+        // context.SaveChanges();
+
         // DB has been seeded
         return;
       }

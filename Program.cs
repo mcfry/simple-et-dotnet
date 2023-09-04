@@ -4,7 +4,6 @@ using ExerciseTimer.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -25,6 +24,7 @@ builder.Services.AddCors(options =>
 // Db Context
 // builder.Services.AddSqlite<PizzaContext>("Data Source=ContosoPizza.db");
 builder.Services.AddScoped<ExerciseService>();
+builder.Services.AddScoped<SetRecordService>();
 builder.Services.AddScoped<ExerciseContext>();
 
 var app = builder.Build();
@@ -47,6 +47,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// seed the db
 app.CreateDbIfNotExists();
 
 app.Run();

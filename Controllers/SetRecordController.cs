@@ -1,5 +1,6 @@
 using ExerciseTimer.Services;
 using ExerciseTimer.Models;
+using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExerciseTimer.Controllers;
@@ -8,7 +9,7 @@ namespace ExerciseTimer.Controllers;
 [Route("[controller]")]
 public class SetRecordController : ControllerBase
 {
-  SetRecordService _service;
+  readonly SetRecordService _service;
 
   public SetRecordController(SetRecordService service)
   {
@@ -19,6 +20,22 @@ public class SetRecordController : ControllerBase
   public IEnumerable<SetRecord> GetAll()
   {
     return _service.GetAll();
+  }
+
+  [HttpGet("byExercise/{exerciseId}")]
+  public IActionResult GetAllByExercise(int exerciseId)
+  {
+    var records = _service.GetAllByExercise(exerciseId);
+    
+    // handle reference loops
+    var settings = new JsonSerializerSettings
+    {
+      ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+    };
+
+    var jsonResponse = JsonConvert.SerializeObject(records, settings);
+
+    return Ok(jsonResponse);
   }
 
   [HttpGet("{id}")]
@@ -38,8 +55,16 @@ public class SetRecordController : ControllerBase
 
   [HttpPost]
   public IActionResult Create(SetRecord newSetRecord)
-  {
-    var SetRecord = _service.Create(newSetRecord);
-    return CreatedAtAction(nameof(GetById), new { id = SetRecord!.Id }, SetRecord);
+  {    
+    var createdSetRecord = _service.Create(newSetRecord);
+
+    // handle reference loops
+    var settings = new JsonSerializerSettings
+    {
+      ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+    };
+
+    var jsonResponse = JsonConvert.SerializeObject(createdSetRecord, settings);
+    return CreatedAtAction(nameof(GetById), new { id = createdSetRecord!.Id }, jsonResponse);
   }
 }
