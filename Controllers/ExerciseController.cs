@@ -9,16 +9,37 @@ namespace ExerciseTimer.Controllers;
 public class ExerciseController : ControllerBase
 {
   readonly ExerciseService _service;
+  readonly FirebaseService _firebaseService;
 
-  public ExerciseController(ExerciseService service)
+  public ExerciseController(ExerciseService service, FirebaseService firebaseService)
   {
     _service = service;
+    _firebaseService = firebaseService;
   }
 
   [HttpGet]
-  public IEnumerable<Exercise> GetAll()
+  public async Task<IActionResult> GetAll()
   {
-    return _service.GetAll();
+    string? idToken = Request.Headers["Authorization"];
+
+    if (string.IsNullOrWhiteSpace(idToken))
+    {
+      return Unauthorized("Missing or invalid token");
+    }
+
+    // Strip Bearer
+    idToken = idToken.StartsWith("Bearer ") ? idToken.Substring(7) : idToken;
+
+    // Verify the Firebase ID token
+    string? uid = await _firebaseService.VerifyFirebaseIdTokenAsync(idToken);
+    if (uid == null)
+    {
+      return Unauthorized("Invalid token");
+    }
+
+    // Token is valid; proceed with fetching exercises
+    var exercises = _service.GetAll();
+    return Ok(exercises);
   }
 
   [HttpGet("{id}")]
@@ -42,52 +63,4 @@ public class ExerciseController : ControllerBase
     var Exercise = _service.Create(newExercise);
     return CreatedAtAction(nameof(GetById), new { id = Exercise!.Id }, Exercise);
   }
-
-  // [HttpPut("{id}/addtopping")]
-  // public IActionResult AddTopping(int id, int toppingId)
-  // {
-  //   var ExerciseToUpdate = _service.GetById(id);
-
-  //   if (ExerciseToUpdate is not null)
-  //   {
-  //     _service.AddTopping(id, toppingId);
-  //     return NoContent();
-  //   }
-  //   else
-  //   {
-  //     return NotFound();
-  //   }
-  // }
-
-  // [HttpPut("{id}/updatesauce")]
-  // public IActionResult UpdateSauce(int id, int sauceId)
-  // {
-  //   var ExerciseToUpdate = _service.GetById(id);
-
-  //   if (ExerciseToUpdate is not null)
-  //   {
-  //     _service.UpdateSauce(id, sauceId);
-  //     return NoContent();
-  //   }
-  //   else
-  //   {
-  //     return NotFound();
-  //   }
-  // }
-
-  // [HttpDelete("{id}")]
-  // public IActionResult Delete(int id)
-  // {
-  //   var Exercise = _service.GetById(id);
-
-  //   if (Exercise is not null)
-  //   {
-  //     _service.DeleteById(id);
-  //     return Ok();
-  //   }
-  //   else
-  //   {
-  //     return NotFound();
-  //   }
-  // }
 }

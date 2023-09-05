@@ -21,8 +21,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Db Context
-// builder.Services.AddSqlite<PizzaContext>("Data Source=ContosoPizza.db");
+// depenendcies
+builder.Services.AddSingleton<FirebaseService>();
 builder.Services.AddScoped<ExerciseService>();
 builder.Services.AddScoped<SetRecordService>();
 builder.Services.AddScoped<ExerciseContext>();
