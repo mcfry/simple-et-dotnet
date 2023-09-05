@@ -11,9 +11,11 @@ public class Exercise
 
   // Relations
   public ICollection<SetRecord> SetRecords { get; set; }
+  public ICollection<UserExercise> UserExercises { get; set; }
 
   public Exercise()
   {
     SetRecords = new List<SetRecord>();
+    UserExercises = new List<UserExercise>();
   }
 }

@@ -22,9 +22,10 @@ builder.Services.AddCors(options =>
 });
 
 // depenendcies
-builder.Services.AddSingleton<FirebaseService>();
 builder.Services.AddScoped<ExerciseService>();
 builder.Services.AddScoped<SetRecordService>();
+builder.Services.AddScoped<UserExerciseService>();
+builder.Services.AddSingleton<FirebaseService>();
 builder.Services.AddScoped<ExerciseContext>();
 
 var app = builder.Build();

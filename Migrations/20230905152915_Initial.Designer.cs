@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExerciseTimer.Migrations
 {
     [DbContext(typeof(ExerciseContext))]
-    [Migration("20230902021316_Initial")]
+    [Migration("20230905152915_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -67,7 +67,7 @@ namespace ExerciseTimer.Migrations
 
                     b.HasIndex("SetRecordId");
 
-                    b.ToTable("Toppings");
+                    b.ToTable("Sets");
                 });
 
             modelBuilder.Entity("ExerciseTimer.Models.SetRecord", b =>
@@ -89,6 +89,28 @@ namespace ExerciseTimer.Migrations
                     b.HasIndex("ExerciseId");
 
                     b.ToTable("SetRecords");
+                });
+
+            modelBuilder.Entity("ExerciseTimer.Models.UserExercise", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ExerciseId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Uid")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.ToTable("UserExercises");
                 });
 
             modelBuilder.Entity("ExerciseTimer.Models.Set", b =>
@@ -113,9 +135,22 @@ namespace ExerciseTimer.Migrations
                     b.Navigation("Exercise");
                 });
 
+            modelBuilder.Entity("ExerciseTimer.Models.UserExercise", b =>
+                {
+                    b.HasOne("ExerciseTimer.Models.Exercise", "Exercise")
+                        .WithMany("UserExercises")
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercise");
+                });
+
             modelBuilder.Entity("ExerciseTimer.Models.Exercise", b =>
                 {
                     b.Navigation("SetRecords");
+
+                    b.Navigation("UserExercises");
                 });
 
             modelBuilder.Entity("ExerciseTimer.Models.SetRecord", b =>

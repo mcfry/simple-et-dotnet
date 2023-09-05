@@ -1,5 +1,6 @@
 using ExerciseTimer.Services;
 using ExerciseTimer.Models;
+using ExerciseTimer.Attributes;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,28 +18,32 @@ public class SetRecordController : ControllerBase
   }
 
   [HttpGet]
+  [FirebaseTokenVerification]
   public IEnumerable<SetRecord> GetAll()
   {
     return _service.GetAll();
   }
 
   [HttpGet("byExercise/{exerciseId}")]
+  [FirebaseTokenVerification]
   public IActionResult GetAllByExercise(int exerciseId)
   {
-    var records = _service.GetAllByExercise(exerciseId);
-    
-    // handle reference loops
-    var settings = new JsonSerializerSettings
-    {
-      ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-    };
+    if (HttpContext.Items.TryGetValue("uid", out var uidObject) && uidObject is string uid) {
+      var records = _service.GetAllByExercise(exerciseId, uid);
 
-    var jsonResponse = JsonConvert.SerializeObject(records, settings);
+      var settings = new JsonSerializerSettings {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+      };
 
-    return Ok(jsonResponse);
+      var jsonResponse = JsonConvert.SerializeObject(records, settings);
+      return Ok(jsonResponse);
+    }
+
+    return BadRequest();
   }
 
   [HttpGet("{id}")]
+  [FirebaseTokenVerification]
   public ActionResult<SetRecord> GetById(int id)
   {
     var SetRecord = _service.GetById(id);
@@ -54,6 +59,7 @@ public class SetRecordController : ControllerBase
   }
 
   [HttpPost]
+  [FirebaseTokenVerification]
   public IActionResult Create(SetRecord newSetRecord)
   {    
     var createdSetRecord = _service.Create(newSetRecord);

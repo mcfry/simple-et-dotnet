@@ -5,6 +5,7 @@ namespace ExerciseTimer.Models;
 public class SetRecord
 {
   public int Id { get; set; }
+  public string Uid { get; set; }
   public DateTime CreatedAt { get; set; }
 
   // Relations
@@ -12,8 +13,9 @@ public class SetRecord
   public Exercise? Exercise { get; set; }
   public ICollection<Set> Sets { get; set; }
 
-  public SetRecord()
+  public SetRecord(string uid)
   {
+    Uid = uid;
     CreatedAt = DateTime.UtcNow;
     Sets = new List<Set>();
   }

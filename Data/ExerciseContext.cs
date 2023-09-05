@@ -15,6 +15,7 @@ public class ExerciseContext : DbContext
   public DbSet<Exercise> Exercises => Set<Exercise>();
   public DbSet<SetRecord> SetRecords => Set<SetRecord>();
   public DbSet<Set> Sets => Set<Set>();
+  public DbSet<UserExercise> UserExercises => Set<UserExercise>();
 
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
@@ -30,6 +31,11 @@ public class ExerciseContext : DbContext
 
     modelBuilder.Entity<Exercise>()
       .HasMany(srs => srs.SetRecords)
+      .WithOne(ex => ex.Exercise)
+      .HasForeignKey(ex => ex.ExerciseId);
+
+    modelBuilder.Entity<Exercise>()
+      .HasMany(exs => exs.UserExercises)
       .WithOne(ex => ex.Exercise)
       .HasForeignKey(ex => ex.ExerciseId);
   }

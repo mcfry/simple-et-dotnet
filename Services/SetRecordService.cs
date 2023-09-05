@@ -21,10 +21,10 @@ public class SetRecordService
       .ToList();
   }
 
-  public IEnumerable<SetRecord> GetAllByExercise(int exerciseId)
+  public IEnumerable<SetRecord> GetAllByExercise(int exerciseId, string uid)
   {
     return _context.SetRecords
-      .Where(sr => sr.ExerciseId == exerciseId)
+      .Where(sr => sr.ExerciseId == exerciseId && sr.Uid == uid)
       .Include(sr => sr.Sets)
       .AsNoTracking()
       .ToList();

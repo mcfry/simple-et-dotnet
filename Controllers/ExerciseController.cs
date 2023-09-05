@@ -1,5 +1,7 @@
 using ExerciseTimer.Services;
 using ExerciseTimer.Models;
+using ExerciseTimer.Attributes;
+using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExerciseTimer.Controllers;
@@ -9,58 +11,66 @@ namespace ExerciseTimer.Controllers;
 public class ExerciseController : ControllerBase
 {
   readonly ExerciseService _service;
+  readonly UserExerciseService _userExerciseService;
   readonly FirebaseService _firebaseService;
 
-  public ExerciseController(ExerciseService service, FirebaseService firebaseService)
+  public ExerciseController(ExerciseService service, UserExerciseService userExerciseService, FirebaseService firebaseService)
   {
     _service = service;
+    _userExerciseService = userExerciseService;
     _firebaseService = firebaseService;
   }
 
   [HttpGet]
-  public async Task<IActionResult> GetAll()
+  [FirebaseTokenVerification]
+  public IActionResult GetAll()
   {
-    string? idToken = Request.Headers["Authorization"];
+    if (HttpContext.Items.TryGetValue("uid", out var uidObject) && uidObject is string uid) {
+      _userExerciseService.CheckAndCreateDefaultExercises(uid);
 
-    if (string.IsNullOrWhiteSpace(idToken))
-    {
-      return Unauthorized("Missing or invalid token");
+      var exercises = _service.GetAll(uid);
+
+      var settings = new JsonSerializerSettings {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+      };
+
+      var jsonResponse = JsonConvert.SerializeObject(exercises, settings);
+      return Ok(jsonResponse);
     }
 
-    // Strip Bearer
-    idToken = idToken.StartsWith("Bearer ") ? idToken.Substring(7) : idToken;
-
-    // Verify the Firebase ID token
-    string? uid = await _firebaseService.VerifyFirebaseIdTokenAsync(idToken);
-    if (uid == null)
-    {
-      return Unauthorized("Invalid token");
-    }
-
-    // Token is valid; proceed with fetching exercises
-    var exercises = _service.GetAll();
-    return Ok(exercises);
+    return BadRequest();
   }
 
   [HttpGet("{id}")]
+  [FirebaseTokenVerification]
   public ActionResult<Exercise> GetById(int id)
   {
     var Exercise = _service.GetByIdSimple(id);
 
-    if (Exercise is not null)
-    {
+    if (Exercise is not null) {
       return Exercise;
-    }
-    else
-    {
+    } else {
       return NotFound();
     }
   }
 
   [HttpPost]
+  [FirebaseTokenVerification]
   public IActionResult Create(Exercise newExercise)
   {
-    var Exercise = _service.Create(newExercise);
-    return CreatedAtAction(nameof(GetById), new { id = Exercise!.Id }, Exercise);
+    if (HttpContext.Items.TryGetValue("uid", out var uidObject) && uidObject is string uid) {
+      _userExerciseService.CheckAndCreateDefaultExercises(uid);
+
+      var exercise = _service.Create(newExercise, uid);
+
+      var settings = new JsonSerializerSettings {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+      };
+
+      var jsonResponse = JsonConvert.SerializeObject(exercise, settings);
+      return Ok(jsonResponse);
+    }
+
+    return BadRequest();
   }
 }

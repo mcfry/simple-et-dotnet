@@ -16,6 +16,7 @@ namespace ExerciseTimer.Data
         return;
       }
 
+      // Default Exercises
       var pushups = new Exercise { Name = "Push ups" };
       var pullups = new Exercise { Name = "Pull ups" };
       var dips = new Exercise { Name = "Dips" };
@@ -28,43 +29,6 @@ namespace ExerciseTimer.Data
       context.Exercises.Add(plank);
       context.Exercises.Add(handstand);
       context.SaveChanges();
-
-            // var pizzas = new Pizza[]
-      // {
-      //   new Pizza
-      //   {
-      //     Name = "Meat Lovers",
-      //     Sauce = tomatoSauce,
-      //     Toppings = new List<Topping>
-      //     {
-      //       pepperoniTopping,
-      //       sausageTopping,
-      //       hamTopping,
-      //       chickenTopping
-      //     }
-      //   },
-      //   new Pizza
-      //   {
-      //     Name = "Hawaiian",
-      //     Sauce = tomatoSauce,
-      //     Toppings = new List<Topping>
-      //     {
-      //         pineappleTopping,
-      //         hamTopping
-      //     }
-      //   },
-      //   new Pizza
-      //   {
-      //     Name="Alfredo Chicken",
-      //     Sauce = alfredoSauce,
-      //     Toppings = new List<Topping>
-      //     {
-      //         chickenTopping
-      //     }
-      //   }
-      // };
-
-      // context.Pizzas.AddRange(pizzas);
     }
   }
 }

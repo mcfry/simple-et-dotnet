@@ -46,7 +46,27 @@ namespace ExerciseTimer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Toppings",
+                name: "UserExercises",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Uid = table.Column<string>(type: "text", nullable: false),
+                    ExerciseId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserExercises", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserExercises_Exercises_ExerciseId",
+                        column: x => x.ExerciseId,
+                        principalTable: "Exercises",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Sets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -58,9 +78,9 @@ namespace ExerciseTimer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Toppings", x => x.Id);
+                    table.PrimaryKey("PK_Sets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Toppings_SetRecords_SetRecordId",
+                        name: "FK_Sets_SetRecords_SetRecordId",
                         column: x => x.SetRecordId,
                         principalTable: "SetRecords",
                         principalColumn: "Id",
@@ -73,16 +93,24 @@ namespace ExerciseTimer.Migrations
                 column: "ExerciseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Toppings_SetRecordId",
-                table: "Toppings",
+                name: "IX_Sets_SetRecordId",
+                table: "Sets",
                 column: "SetRecordId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserExercises_ExerciseId",
+                table: "UserExercises",
+                column: "ExerciseId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Toppings");
+                name: "Sets");
+
+            migrationBuilder.DropTable(
+                name: "UserExercises");
 
             migrationBuilder.DropTable(
                 name: "SetRecords");

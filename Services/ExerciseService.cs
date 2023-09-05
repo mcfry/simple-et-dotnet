@@ -23,6 +23,16 @@ public class ExerciseService
       .ToList();
   }
 
+  public IEnumerable<Exercise> GetAll(string uid)
+  {
+    return _context.Exercises
+      .Include(ex => ex.UserExercises)
+      .AsNoTracking()
+      .Where(ex => ex.UserExercises.Any(ue => ue.Uid == uid))
+      .OrderBy(exercise => exercise.Name)
+      .ToList();
+  }
+
   public Exercise? GetById(int id)
   {
     return _context.Exercises
@@ -39,9 +49,24 @@ public class ExerciseService
       .SingleOrDefault(p => p.Id == id);
   }
 
-  public Exercise Create(Exercise newExercise)
+  public Exercise Create(Exercise newExercise, string uid)
   {
-    _context.Exercises.Add(newExercise);
+    UserExercise userExercise;
+    var exerciseRecord = _context.Exercises.FirstOrDefault(ex => ex.Name == newExercise.Name);
+    if (exerciseRecord == null) {
+      _context.Exercises.Add(newExercise);
+      _context.SaveChanges(); // save to generate Id
+
+      userExercise = new UserExercise(uid) {
+        ExerciseId = newExercise.Id
+      };
+    } else {
+      userExercise = new UserExercise(uid) {
+        ExerciseId = exerciseRecord.Id
+      };
+    }
+
+    _context.UserExercises.Add(userExercise);
     _context.SaveChanges();
 
     return newExercise;
